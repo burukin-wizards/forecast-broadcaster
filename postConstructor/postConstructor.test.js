@@ -3,8 +3,8 @@ const bodyConstructor = require('./bodyConstructor');
 const permlinkConstructor = require('./permlinkConstructor');
 const objectNameFinder = require('./objectNameFinder');
 
-const testSignal1 = {
-    direction: 1,
+const testSignal = {
+    direction: -1,
     predictiontimeto: 1111,
     symbol: 'test-symbol',
     stoploss: 111,
@@ -15,8 +15,8 @@ const testSignal1 = {
     trend: 'test-trend',
     resultuid: 0
 };
-const testSignal2 = {
-    direction: -1,
+const testSignalWithOtherDirection = {
+    direction: 1,
     predictiontimeto: 1111,
     symbol: 'test-symbol',
     stoploss: 111,
@@ -184,48 +184,9 @@ const testWobject = {
 
 const objectName = objectNameFinder(testWobject);
 const permlink = permlinkConstructor(0);
-const body = bodyConstructor(testSignal1, objectName, testWobject.author_permlink, 'test-author', permlink);
-const createdAt = new Date(Date.now());
-const expiredAt = new Date(testSignal1.predictiontimeto * 1000);
-
-test( 'check if the constructed objects equals to expected object', () => {
-    const expectedObject ={
-        author: 'test-author',
-        parent_author: '',
-        body,
-        permlink,
-        parent_permlink: 'wtrade',
-        json_metadata: JSON.stringify({
-            community: 'waivio',
-            app: '4cast.in',
-            format: 'markdown',
-            tags: '4cast',
-            users: [],
-            image: ['https://miro.medium.com/max/1024/1*AYsEF4mKmp28JGfQvFhrRQ.png'],
-            wobj: {
-                wobjects: [
-                    {
-                        objectName: 'EUR/CZK',
-                        author_permlink: 'cur-eurczk',
-                        percent: 100
-                    }
-                ]
-            },
-            wia: {
-                quoteSecurity: 'test-symbol',
-                marker: 'test-market',
-                recommend: 'Buy',
-                postPrice: parseInt(testRate.CurrentValue, 10),
-                expiredAt,
-                isValid: true,
-                slPrice: 111
-                //createdAt: createdAt.toISOString()
-            },
-        }),
-        title: `Buy opportunity detected from EUR/CZK`
-    };
-    expect(postConstructor(testSignal1, testRate, testWobject, 'test-author')).toStrictEqual(expectedObject);
-});
+const body = bodyConstructor(testSignalWithOtherDirection, objectName, testWobject.author_permlink, 'test-author', permlink);
+const createdAt = new Date('05 October 2011 14:48 UTC');
+const expiredAt = new Date(testSignalWithOtherDirection.predictiontimeto * 1000);
 
 test( 'check if the constructed objects equals to expected object', () => {
     const expectedObject ={
@@ -263,7 +224,46 @@ test( 'check if the constructed objects equals to expected object', () => {
         }),
         title: `Sell opportunity detected from EUR/CZK`
     };
-    expect(postConstructor(testSignal2, testRate, testWobject, 'test-author')).toStrictEqual(expectedObject);
+    expect(postConstructor(testSignal, testRate, testWobject, 'test-author', '05 October 2011 14:48 UTC', 0)).toStrictEqual(expectedObject);
+});
+
+test( 'check if the constructed objects is not equal to expected object', () => {
+    const expectedObject ={
+        author: 'test-author',
+        parent_author: '',
+        body,
+        permlink,
+        parent_permlink: 'wtrade',
+        json_metadata: JSON.stringify({
+            community: 'waivio',
+            app: '4cast.in',
+            format: 'markdown',
+            tags: '4cast',
+            users: [],
+            image: ['https://miro.medium.com/max/1024/1*AYsEF4mKmp28JGfQvFhrRQ.png'],
+            wobj: {
+                wobjects: [
+                    {
+                        objectName: 'EUR/CZK',
+                        author_permlink: 'cur-eurczk',
+                        percent: 100
+                    }
+                ]
+            },
+            wia: {
+                quoteSecurity: 'test-symbol',
+                marker: 'test-market',
+                recommend: 'Buy',
+                postPrice: parseInt(testRate.CurrentValue, 10),
+                expiredAt,
+                isValid: true,
+                slPrice: 111
+                //createdAt: createdAt.toISOString()
+            },
+        }),
+        title: `Buy opportunity detected from EUR/CZK`
+    };
+    expect(postConstructor(testSignalWithOtherDirection, testRate, testWobject, 'test-author', '05 October 2011 14:48 UTC', 0)).not.toStrictEqual(expectedObject);
 });
 
 

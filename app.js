@@ -9,42 +9,43 @@ const {postBroadcaster} = require('./postBroadcaster');
 const {signalValidator, rateValidator, wobjectValidator} = require('./validator');
 const accountsData = require('./constants/accountsData');
 
-const botsAcc = (function () {
-    let index = 0;
-    const accData = accountsData;
-    const length = accountsData.length;
-
+const getAccount = function () {
     return {
+        index: 0,
+        accData: accountsData,
+        length: accountsData.length,
         getNext: function () {
             let account;
             if (!this.hasNext()) {
                 this.resetIndex();
             }
-            account = accData[index];
-            index = index + 1;
+            account = this.accData[this.index];
+            this.index = this.index + 1;
             return account;
         },
         hasNext: function () {
-            return index < length;
+            return this.index < this.length;
         },
         resetIndex: function () {
-            index = 0;
+            this.index = 0;
         },
     };
-}());
+};
+
+const botsAcc = getAccount();
 
 var signalsInitialArray;
 
-async function getValidSignals() {
+async function getValidSignals(initialArray) {
     try {
         const newSignals = await getSignals();
         const newSignalsArray = signalsConverter(newSignals);
 
-        return signalsProcessor.findUniqueSignals(newSignalsArray, signalsInitialArray)
+        return signalsProcessor.findUniqueSignals(newSignalsArray, initialArray)
             .filter(signal => signalsProcessor.signalFilter(signal))
             .filter(signal => signalValidator(signal));
     } catch (e) {
-        console.error(e);
+        console.error(e.message);
     }
 }
 
@@ -60,7 +61,6 @@ async function createAndBroadcastPost(filteredSignalsArray) {
         const post = postConstructor(latestSignal, validRate, validWobject, botAcc.name);
         const transactionStatus = await postBroadcaster(post, PrivateKey.fromString(botAcc.postingKey));
         if (transactionStatus) {
-            console.log(post);
             console.log(`Object type successfully broadcasted. Transaction ID: ${transactionStatus.id}, author: ${botAcc.name}`);
             this.attempts = 0;
         }
@@ -74,7 +74,7 @@ async function createAndBroadcastPost(filteredSignalsArray) {
     }
 }
 
-setTimeout(async () => {
+(async () => {
     try {
         const initialSignals = await getSignals();
         signalsInitialArray = signalsConverter(initialSignals)
@@ -85,13 +85,13 @@ setTimeout(async () => {
     } catch (e) {
         console.error(e);
     }
-}, 0);
+})();
 
-const job = new CronJob('0 0 8-22/2 * * *', async () => {
+const job = new CronJob('0 0 7-21/2 * * *', async () => {
     (async () => {
         for (let i = 0; i < 20; i++) {
             console.log('Looking for a new signals...');
-            let validSignalsArray = await getValidSignals();
+            let validSignalsArray = await getValidSignals(signalsInitialArray);
             if (!_.isEmpty(validSignalsArray)) {
                 if ( signalsInitialArray.length > 100) {
                     signalsInitialArray.splice(0, 50);
@@ -106,3 +106,8 @@ const job = new CronJob('0 0 8-22/2 * * *', async () => {
 }, null, false, null, null, false);
 
 job.start();
+
+module.exports = {
+    getValidSignals,
+    getAccount
+};

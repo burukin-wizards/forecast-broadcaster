@@ -2,7 +2,7 @@ const quoteIdForWidget = require('../constants/quoteIdForWidget');
 const _ = require('lodash');
 
 function signalFilter (signal) {
-    if (signal.quality >= 7) {
+    if (signal.quality >= 6) {
         if (_.isNumber(quoteIdForWidget[signal.symbol])) {
             return true;
         }

@@ -95,13 +95,13 @@ const correctSignal = {
 describe('signal validator of emptiness fitness of data types', () => {
     it.each([
         [{}, false],
-        // [signalGen(undefined, 1010), false],
-        // [signalGen('test', undefined), false],
-        // [signalGen('test', 'test'), false],
-        // [signalGen(1010, 1010), false],
-        // [signalGen('test', 1010), true]
-        [incorrectSignal, false],
-        [correctSignal, true]
+        [signalGen(undefined, 1010), false],
+        [signalGen('test', undefined), false],
+        [signalGen('test', 'test'), false],
+        [signalGen(1010, 1010), false],
+        [signalGen('test', 1010), true]
+        // [incorrectSignal, false],
+        // [correctSignal, true]
     ])(`for  %o should return true of false`, (value, expected) => {
         expect(signalValidator(value)).toEqual(expected);
     });

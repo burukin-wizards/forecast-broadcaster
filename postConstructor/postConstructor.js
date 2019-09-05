@@ -8,12 +8,12 @@ const objectNameFinder = require('./objectNameFinder');
 
 
 
-function  postConstructor (signal, rate, wobject, author_name) {
+function  postConstructor (signal, rate, wobject, author_name, date = Date.now(), permlinkLength=5 ) {
     const buySell = signal.direction === 1 ? 'Buy' : 'Sell';
     const objectName = objectNameFinder(wobject);
-    const permlink = permlinkConstructor(5);
+    const permlink = permlinkConstructor(permlinkLength);
     const body = bodyConstructor(signal, objectName, wobject.author_permlink, author_name, permlink);
-    const createdAt = new Date(Date.now());
+    const createdAt = new Date(date);
     const expiredAt = new Date(signal.predictiontimeto * 1000);
 
     return {
