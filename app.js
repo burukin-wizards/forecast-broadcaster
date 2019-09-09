@@ -1,6 +1,7 @@
 const {PrivateKey} = require('dsteem');
 const _ = require('lodash');
 const {CronJob} = require('cron');
+const express = require('express');
 
 const {getSignals, getRates, getWobjects} = require('./api/index');
 const {signalsConverter, signalsProcessor} = require('./signalsProcessor');
@@ -8,6 +9,10 @@ const {postConstructor} = require('./postConstructor');
 const {postBroadcaster} = require('./postBroadcaster');
 const {signalValidator, rateValidator, wobjectValidator} = require('./validator');
 const accountsData = require('./constants/accountsData');
+
+const app = express();
+let port = normalizePort(process.env.PORT || '5000');
+app.set('port', port);
 
 const getAccount = function () {
     return {
