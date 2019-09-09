@@ -10,6 +10,22 @@ const {postBroadcaster} = require('./postBroadcaster');
 const {signalValidator, rateValidator, wobjectValidator} = require('./validator');
 const accountsData = require('./constants/accountsData');
 
+function normalizePort(val) {
+    let port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+
+    return false;
+}
+
 const app = express();
 let port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
