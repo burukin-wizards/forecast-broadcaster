@@ -27,8 +27,8 @@ function normalizePort(val) {
 }
 
 const app = express();
-let port = normalizePort(process.env.PORT || '5000');
-app.listen('port', port);
+//let port = normalizePort(process.env.PORT || '5000');
+app.listen(process.env.PORT || 5000);
 
 const getAccount = function () {
     return {
